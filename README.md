@@ -1,9 +1,16 @@
 # SpotifyR
-Introduction
+
+
+Introduction 
+
 Make an R Shiny application.
-Dataset used
+
+Dataset used 
+
 Dataset used from https://www.kaggle.com/leonardopena/top50spotify2019
+
 Algorithm used for this dataset
+
 Clustering
 Mathematical/statistical details of the algorithm
 
