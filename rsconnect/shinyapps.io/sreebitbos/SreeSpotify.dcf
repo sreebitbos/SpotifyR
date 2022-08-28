@@ -1,0 +1,13 @@
+name: SreeSpotify
+title: SreeSpotify
+username:
+account: sreebitbos
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 6864017
+bundleId: 6245345
+url: https://sreebitbos.shinyapps.io/SreeSpotify/
+when: 1661696675.5379
+lastSyncTime: 1661696675.53791
+asMultiple: FALSE
+asStatic: FALSE
