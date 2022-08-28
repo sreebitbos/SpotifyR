@@ -1,0 +1,192 @@
+---
+title: "SpotifyClassification"
+output: html_document
+date: "`r Sys.Date()`"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+
+## Including Plots
+
+You can also embed plots, for example:
+
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+
+```{r}
+spotify <- read.csv("top50.csv")
+```
+
+```{r}
+str(spotify)
+```
+
+```{r}
+library(tidyverse) # for data wrangling
+spotify <- spotify %>% 
+  select(-X)
+```
+```{r}
+colSums(is.na(spotify))
+```
+
+```{r}
+library(plotly) # for interactive plot
+library(glue) # for glue text
+
+top10_song <- spotify %>% 
+  arrange(desc(Popularity)) %>% 
+  head(10) %>% 
+  select(c(Track.Name, Artist.Name, Genre, Popularity, Length.)) %>% 
+  mutate(mean_length = mean(Length.),
+         text = glue(
+    "Artist = {Artist.Name}
+    Genre = {Genre}"
+  ))
+
+plot_top10_song <- ggplot(data = top10_song, aes(x = reorder(Track.Name, Popularity),
+                                                 y = Popularity,
+                                                 text = text,
+                                                 label = Popularity))+
+  geom_col(aes(fill = Popularity), show.legend = F)+
+  theme_bw()+
+  coord_flip()+
+  theme(axis.text = element_text(size = 12),
+        axis.title = element_text(size = 12, colour = "black"),
+        title = element_text(size = 12, colour = "black"))+
+  geom_text(aes(label = Popularity), color = "white", size = 6, fontface = "bold", position = position_stack(0.8))+
+  labs(title = "Top 10 Song on Spotify in 2019",
+       x = "Song Title",
+       y = "Popularity Rate",
+       caption = "Source : Kaggle Dataset")
+
+ggplotly(plot_top10_song, tooltip = "text")
+```
+
+```{r}
+top3_genre <- spotify %>% 
+  group_by(Genre) %>% 
+  summarise(song = n()) %>% 
+  ungroup() %>% 
+  mutate(song = song/50) %>% 
+  arrange(desc(song)) %>% 
+  head(3)
+
+library(ggplot2) #to make plot
+plot_top3_genre <- ggplot(data = top3_genre, aes(x = reorder(Genre, song),
+                                                 y = song,
+                                                 label = song))+
+  geom_col(aes(fill = song), show.legend = FALSE)+
+  theme_bw()+
+  coord_flip()+
+  theme(axis.text = element_text(size = 12),
+        axis.title = element_text(size = 14, colour = "black"),
+        title = element_text(size = 14, colour = "black"))+
+  geom_text(aes(label = scales::percent(song)), color = "white", size = 12, fontface = "bold", position = position_stack(0.7))+
+  labs(title = "Top 3 Genre of Spotify Most Popular Song 2019",
+       x = "Genre of Music",
+       y = "Rate of Genre",
+       caption = "Source : Kaggle Dataset")
+
+plot_top3_genre
+```
+
+```{r}
+spotify_ppt <- spotify %>% 
+  select_if(is.numeric) %>% 
+  select(-Popularity) # this variable would not be used even integer since it does not carelated to thid clasification.
+
+glimpse(spotify_ppt)
+```
+
+```{r}
+spotify_scale <- scale(spotify_ppt, center = T, scale = T)
+```
+
+```{r}
+RNGkind(sample.kind = "Rounding")
+kmeansTunning <- function(data, maxK){
+  withinall <-  NULL
+  total_k <-  NULL
+  for (i in 2: maxK){
+    set.seed(101)
+    temp <- kmeans(data,i)$tot.withinss
+    withinall <- append(withinall, temp)
+    total_k <-  append(total_k,i)
+  }
+  plot(x = total_k, y = withinall, type = "o", xlab = "Number of Cluster", ylab = "Total Within")
+}
+
+kmeansTunning(spotify_scale, maxK = 7)
+```
+
+```{r}
+set.seed(101)
+spotify_cluster <- kmeans(spotify_ppt, 6)
+spotify_ppt$cluster <- spotify_cluster$cluster
+spotify_ppt$cluster <- as.factor(spotify_ppt$cluster)
+```
+
+```{r}
+library(FactoMineR) # for PCA
+pca_spotify <- PCA(spotify_ppt, quali.sup =10, graph = F, scale.unit = T)
+
+# plot
+plot.PCA(pca_spotify, choix = "ind", label = "none", habillage = 10)
+```
+
+```{r}
+summary(pca_spotify)
+```
+```{r}
+plot.PCA(pca_spotify)
+```
+
+```{r}
+pca_dimdesc <-  dimdesc(pca_spotify)
+
+pca_dimdesc$Dim.1
+```
+```{r}
+plot.PCA(pca_spotify, choix = "var", col.ind = spotify_ppt$cluster)
+```
+
+```{r}
+library(factoextra)
+fviz_cluster(spotify_cluster,
+             data = spotify_ppt[,-10])+
+  theme_minimal()
+```
+
+```{r}
+spotify_cluster$withinss
+```
+
+```{r}
+spotify_cluster$totss
+```
+
+```{r}
+spotify_cluster$betweenss
+```
+
+```{r}
+spotify_cluster$betweenss/spotify_cluster$totss
+```
+
+```{r}
+spotify_ppt %>% 
+  group_by(cluster) %>% 
+  summarise_all("mean")
+```
+
