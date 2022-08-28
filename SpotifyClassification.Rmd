@@ -24,7 +24,7 @@ Note that the `echo = FALSE` parameter was added to the code chunk to prevent pr
 
 
 ```{r}
-spotify <- read.csv("top50.csv")
+spotify <- read.csv("Spotify_top50.csv")
 ```
 
 ```{r}
@@ -65,7 +65,7 @@ plot_top10_song <- ggplot(data = top10_song, aes(x = reorder(Track.Name, Popular
         axis.title = element_text(size = 12, colour = "black"),
         title = element_text(size = 12, colour = "black"))+
   geom_text(aes(label = Popularity), color = "white", size = 6, fontface = "bold", position = position_stack(0.8))+
-  labs(title = "Top 10 Song on Spotify in 2019",
+  labs(title = "Top 10 Song on Spotify in 2022",
        x = "Song Title",
        y = "Popularity Rate",
        caption = "Source : Kaggle Dataset")
@@ -93,7 +93,7 @@ plot_top3_genre <- ggplot(data = top3_genre, aes(x = reorder(Genre, song),
         axis.title = element_text(size = 14, colour = "black"),
         title = element_text(size = 14, colour = "black"))+
   geom_text(aes(label = scales::percent(song)), color = "white", size = 12, fontface = "bold", position = position_stack(0.7))+
-  labs(title = "Top 3 Genre of Spotify Most Popular Song 2019",
+  labs(title = "Top 3 Genre of Spotify Most Popular Song 2022",
        x = "Genre of Music",
        y = "Rate of Genre",
        caption = "Source : Kaggle Dataset")
