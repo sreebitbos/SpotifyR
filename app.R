@@ -13,7 +13,7 @@ library(shinyWidgets)
 library(shinythemes)
 library(DT)
 
-#top50 = read.csv("top50.csv")
+top50 = read.csv("top50.csv")
 
 ui <- fluidPage(theme = shinytheme("flatly"),
                 
